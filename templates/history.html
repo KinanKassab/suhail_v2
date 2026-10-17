@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}السجل | سهيل{% endblock %}
+{% block content %}
+<div class="topline"><span class="eyebrow">SIMULATIONS HISTORY</span></div><div class="page-head"><div><h1>سجل المحاكاة</h1><p>عرض السيناريوهات المسجلة والرجوع إلى تقاريرها.</p></div><a class="button" href="{{url_for('inputs_page')}}">محاكاة جديدة +</a></div>
+<div class="panel table-panel"><div class="table-scroll"><table><thead><tr><th>الرقم</th><th>الحالة</th><th>المعرّف</th><th>تاريخ الإنشاء (UTC)</th><th>الإجراء</th></tr></thead><tbody>
+{% for sim in sims %}<tr><td class="mono">#{{sim.id}}</td><td><strong>{{sim.patient_name}}</strong></td><td>{{sim.patient_id}}</td><td class="mono">{{sim.created_at[:19].replace('T',' ')}}</td><td><a class="table-action" href="{{url_for('view_simulation',sim_id=sim.id)}}">عرض النتائج ←</a></td></tr>{% else %}<tr><td class="empty" colspan="5">لم تُحفظ أي محاكاة بعد. <a href="{{url_for('inputs_page')}}">أنشئ أول تجربة</a>.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

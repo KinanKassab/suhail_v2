@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="description" content="منصة بحثية لمحاكاة معادلات ديناميكية الورم والمقاومة">
+  <title>{% block title %}سهيل | المختبر البحثي{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-icon">S</span><span><strong>سُهيل</strong><small>SUHAIL RESEARCH LAB</small></span></a>
+    <div class="side-label">لوحة التحكم</div>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><span>⌂</span> الرئيسية</a>
+      <a href="{{ url_for('inputs_page') }}" class="{% if request.endpoint == 'inputs_page' %}active{% endif %}"><span>⌁</span> محاكاة جديدة</a>
+      <a href="{{ url_for('history_page') }}" class="{% if request.endpoint in ('history_page','view_simulation','report_page','export_pdf') %}active{% endif %}"><span>▤</span> السجل والتقارير</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <span class="tag">نسخة بحثية v2.0</span>
+      <p>غير مخصص لتوجيه القرارات الطبية أو الاستعاضة عن الطبيب.</p>
+      {% if auth_enabled %}<form method="post" action="{{url_for('logout')}}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="logout" type="submit">تسجيل الخروج ↗</button></form>{% endif %}
+    </div>
+  </aside>
+  <main class="content">
+    <div class="mobile-brand"><a href="{{url_for('index')}}">سُهيل <span>• المختبر البحثي</span></a></div>
+    {% block content %}{% endblock %}
+    <footer class="footer">© Suhail v2 · Research use only · الحسابات الناتجة افتراضية وغير صالحة للاستدلال السريري</footer>
+  </main>
+</div>
+<script src="{{url_for('static',filename='js/main.js')}}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
