@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}الرئيسية | سهيل{% endblock %}
+{% block title %}Home | Suhail{% endblock %}
 {% block content %}
-<div class="topline"><span class="eyebrow">EXPERIMENTAL SYSTEM • 02</span><span class="status"><i></i> نظام المحاكاة جاهز</span></div>
+<div class="topline"><span class="eyebrow">EXPERIMENTAL SYSTEM • 02</span><span class="status"><i></i> Simulation system ready</span></div>
 <section class="hero">
   <div class="hero-copy">
-    <span class="eyebrow white">محاكاة ديناميكية متعددة المتغيرات</span>
-    <h1>افهم التغيّر.<br><em>اختبر الفرضيات.</em></h1>
-    <p>بيئة بحثية تفاعلية لدراسة التغير العددي للخلايا الحساسة والمقاومة وتأثير المعاملات الدوائية والمناعية وفق نموذج تفاضلي افتراضي.</p>
-    <a class="button white-btn" href="{{url_for('inputs_page')}}">بدء محاكاة جديدة <span>↖</span></a>
+    <span class="eyebrow white">Multivariate dynamic simulation</span>
+    <h1>Understand change.<br><em>Test the hypotheses.</em></h1>
+    <p>Interactive research environment for studying numerical changes in sensitive and resistant cells and the effects of drug and immune inputs within a hypothetical differential model.</p>
+    <a class="button white-btn" href="{{url_for('inputs_page')}}">Start a new simulation <span>↖</span></a>
   </div>
   <div class="hero-figure" aria-hidden="true"><div class="orbit orbit1"></div><div class="orbit orbit2"></div><div class="orbit orbit3"></div><div class="nucleus"></div><span class="point p1"></span><span class="point p2"></span><span class="point p3"></span></div>
 </section>
 <div class="stats-grid">
-  <div class="stat"><span class="stat-icon violet">◉</span><p>المتغيرات الديناميكية</p><strong>05</strong><small>خلايا / مناعة / مستقبلات / دواء</small></div>
-  <div class="stat"><span class="stat-icon blue">∿</span><p>طريقة التكامل</p><strong>LSODA</strong><small>حل عددي متعدد الأيام</small></div>
-  <div class="stat"><span class="stat-icon mint">◎</span><p>معاملات المعايرة</p><strong>05</strong><small>معايرة يدوية أو اشتقاق تجريبي</small></div>
+  <div class="stat"><span class="stat-icon violet">◉</span><p>Dynamic variables</p><strong>05</strong><small>Cells / immune / receptors / drug</small></div>
+  <div class="stat"><span class="stat-icon blue">∿</span><p>Integration method</p><strong>LSODA</strong><small>Multi-day numerical solver</small></div>
+  <div class="stat"><span class="stat-icon mint">◎</span><p>Calibration factors</p><strong>05</strong><small>Manual or derived calibration</small></div>
 </div>
-<section class="section-heading"><div><span class="eyebrow">WORKFLOW</span><h2>خطوات الدراسة</h2></div></section>
-<div class="steps"><div class="step"><b>01</b><h3>ضبط الحالة</h3><p>أدخل القيم الأولية للخلايا والمناعة ومدى المحاكاة.</p></div><div class="step"><b>02</b><h3>تعريف السيناريو</h3><p>حدّد ثوابت النمو والجرعات والمعايرة.</p></div><div class="step"><b>03</b><h3>قراءة النتائج</h3><p>شاهد الرسوم البيانية واحفظ تقريراً قابلاً للطباعة.</p></div></div>
-<div class="notice"><strong>تنبيه طبي وبحثي</strong><p>المعادلات والثوابت ومقياس المعايرة المقترح غير متحقق منها سريرياً. لا تستخدم النتائج لتوقع استجابة مريض حقيقي أو تعديل علاج.</p></div>
+<section class="section-heading"><div><span class="eyebrow">WORKFLOW</span><h2>Study steps</h2></div></section>
+<div class="steps"><div class="step"><b>01</b><h3>Set the case</h3><p>Enter initial cell counts, immune values, and simulation length.</p></div><div class="step"><b>02</b><h3>Define the scenario</h3><p>Specify growth constants, dosing, and calibration values.</p></div><div class="step"><b>03</b><h3>Read the results</h3><p>View the plots and save a printable report.</p></div></div>
+<div class="notice"><strong>Research and clinical warning</strong><p>The equations, constants, and proposed calibration scale have not been clinically validated. Do not use the results to predict a real patient response or modify therapy.</p></div>
 {% endblock %}

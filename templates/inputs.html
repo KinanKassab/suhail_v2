@@ -1,46 +1,46 @@
 {% extends 'base.html' %}
-{% block title %}محاكاة جديدة | سهيل{% endblock %}
+{% block title %}New simulation | Suhail{% endblock %}
 {% block content %}
-<div class="topline"><span class="eyebrow">SIMULATION BUILDER</span><span class="step-badge">إعداد سيناريو بحثي</span></div>
-<div class="page-head"><div><h1>إعداد محاكاة جديدة</h1><p>أدخل القيم الافتراضية وعدّلها لاستكشاف حساسية النموذج.</p></div></div>
-<div class="notice"><strong>للأبحاث والمحاكاة فقط</strong><p>القيم الافتراضية للتجربة البرمجية وليست مستمدة من معايرة سريرية. تجنّب إدخال أسماء أو معرّفات حقيقية للمرضى إلى نسخة عامة.</p></div>
+<div class="topline"><span class="eyebrow">SIMULATION BUILDER</span><span class="step-badge">Research scenario setup</span></div>
+<div class="page-head"><div><h1>Set up a new simulation</h1><p>Enter the default values and adjust them to explore model sensitivity.</p></div></div>
+<div class="notice"><strong>Research and simulation only</strong><p>The default values are for software testing and are not derived from clinical calibration. Avoid entering real patient names or identifiers in a public deployment.</p></div>
 <form id="simulationForm" class="form-layout">
 <div class="form-main">
-<section class="panel"><div class="panel-heading"><b class="circle-number">01</b><div><h2>بيانات السيناريو</h2><p>تعريف اختياري لتسهيل الأرشفة</p></div></div><div class="field-grid">
-  <label>اسم الحالة <input name="patient_name" value="حالة بحثية" maxlength="100" required></label>
-  <label>معرّف الحالة <input name="patient_id" value="-" maxlength="50"></label>
-  <label class="wide">ملاحظات <textarea name="notes" rows="2" maxlength="2000" placeholder="فرضية الاختبار أو وصف السيناريو..."></textarea></label>
+<section class="panel"><div class="panel-heading"><b class="circle-number">01</b><div><h2>Scenario details</h2><p>Optional metadata to help with archiving</p></div></div><div class="field-grid">
+  <label>Case name <input name="patient_name" value="Research case" maxlength="100" required></label>
+  <label>Case ID <input name="patient_id" value="-" maxlength="50"></label>
+  <label class="wide">Notes <textarea name="notes" rows="2" maxlength="2000" placeholder="Test hypothesis or scenario description..."></textarea></label>
 </div></section>
-<section class="panel"><div class="panel-heading"><b class="circle-number">02</b><div><h2>الحالة الابتدائية</h2><p>التجمعات الخلوية والمناعة</p></div></div><div class="field-grid">
-  <label>الخلايا الحساسة S0 <input name="S0" type="number" step="any" min="0" max="1000000000000" value="5000" required></label>
-  <label>الخلايا المقاومة R0 <input name="R0" type="number" step="any" min="0" max="1000000000000" value="100" required></label>
-  <label>المناعة الأولية I0 <input name="I0" type="number" step="0.01" min="0" max="1" value="0.5" required></label>
-  <label>السعة القصوى K <input name="K_cells" type="number" step="any" min="1" value="1000000000" required></label>
+<section class="panel"><div class="panel-heading"><b class="circle-number">02</b><div><h2>Initial state</h2><p>Cell populations and immune baseline</p></div></div><div class="field-grid">
+  <label>Sensitive cells S0 <input name="S0" type="number" step="any" min="0" max="1000000000000" value="5000" required></label>
+  <label>Resistant cells R0 <input name="R0" type="number" step="any" min="0" max="1000000000000" value="100" required></label>
+  <label>Initial immune state I0 <input name="I0" type="number" step="0.01" min="0" max="1" value="0.5" required></label>
+  <label>Maximum capacity K <input name="K_cells" type="number" step="any" min="1" value="1000000000" required></label>
 </div></section>
-<section class="panel"><div class="panel-heading"><b class="circle-number">03</b><div><h2>الجرعات والمدة</h2><p>تعريف مدخل الدواء التجريبي</p></div></div><div class="field-grid">
-  <label>المدة (يوم) <input name="T_days" type="number" min="1" max="365" value="30" required></label>
-  <label>جرعة الدواء (وحدات نموذجية) <input name="dose_amount" type="number" step="any" min="0.000001" value="0.04" required></label>
-  <label class="wide">أيام الجرعات (مفصولة بفواصل) <input name="dose_days" value="1, 8, 15, 22" placeholder="1, 8, 15, 22" required><small>العد يبدأ من اليوم 1.</small></label>
+<section class="panel"><div class="panel-heading"><b class="circle-number">03</b><div><h2>Dosing and duration</h2><p>Define the experimental drug input</p></div></div><div class="field-grid">
+  <label>Duration (days) <input name="T_days" type="number" min="1" max="365" value="30" required></label>
+  <label>Drug dose (model units) <input name="dose_amount" type="number" step="any" min="0.000001" value="0.04" required></label>
+  <label class="wide">Dose days (comma-separated) <input name="dose_days" value="1, 8, 15, 22" placeholder="1, 8, 15, 22" required><small>Counting starts on day 1.</small></label>
 </div></section>
-<section class="panel"><div class="panel-heading"><b class="circle-number">04</b><div><h2>المعاملات الديناميكية</h2><p>ثوابت النمو والتأثيرات المناعية الافتراضية</p></div></div><div class="field-grid">
-  {% for f, label, value in [('G_S','نمو S',0.05),('G_R','نمو R',0.03),('T','تحول S → R',0.01),('I_s','قتل S مناعياً',0.3),('I_r','قتل R مناعياً',0.2),('C_G_I','تأثير الدواء على المناعة',0.4),('N_G_I','أثر عامل الغذاء على المناعة',0.3)] %}
+<section class="panel"><div class="panel-heading"><b class="circle-number">04</b><div><h2>Dynamic parameters</h2><p>Default growth and immune-effect constants</p></div></div><div class="field-grid">
+  {% for f, label, value in [('G_S','S growth',0.05),('G_R','R growth',0.03),('T','S → R conversion',0.01),('I_s','immune kill of S',0.3),('I_r','immune kill of R',0.2),('C_G_I','drug effect on immunity',0.4),('N_G_I','nutrient signal on immunity',0.3)] %}
   <label>{{label}} <span class="field-code">{{f}}</span><input name="{{f}}" type="number" step="any" min="0" max="1" value="{{value}}" required></label>
   {% endfor %}
 </div></section>
-<section class="panel"><div class="panel-heading"><b class="circle-number">05</b><div><h2>المعايرة البحثية</h2><p>حدّد القيم مباشرة أو فعّل اشتقاقاً تجريبياً غير معتمد</p></div></div><div class="switch-wrap"><label class="radio-inline"><input type="radio" name="calibration_mode" value="manual" checked> معايرة يدوية</label><label class="radio-inline"><input type="radio" name="calibration_mode" value="derived"> اشتقاق تجريبي</label></div>
+<section class="panel"><div class="panel-heading"><b class="circle-number">05</b><div><h2>Research calibration</h2><p>Set values directly or enable an unvalidated derivation</p></div></div><div class="switch-wrap"><label class="radio-inline"><input type="radio" name="calibration_mode" value="manual" checked> Manual calibration</label><label class="radio-inline"><input type="radio" name="calibration_mode" value="derived"> Experimental derivation</label></div>
 <div id="manualCal" class="field-grid">
-  {% for f, label, value in [('sigma_C','σ_C • الدواء',0.5),('sigma_L','σ_L • نمط الحياة',0.5),('sigma_I','σ_I • المناعة',0.5),('SRF','SRF • المقاومة',0.5),('sigma_A','σ_A • الشراسة',0.25)] %}
+  {% for f, label, value in [('sigma_C','σ_C • drug',0.5),('sigma_L','σ_L • lifestyle',0.5),('sigma_I','σ_I • immunity',0.5),('SRF','SRF • resistance',0.5),('sigma_A','σ_A • aggressiveness',0.25)] %}
   <label>{{label}}<input name="{{f}}" type="number" step="0.01" min="0" max="1" value="{{value}}" required></label>
   {% endfor %}
 </div>
 <div id="derivedCal" class="field-grid hidden">
-  {% for f, label, value in [('psa_actual','انخفاض PSA الفعلي (وليس قيمة PSA)',0.5),('psa_expected','انخفاض PSA المتوقع',0.7),('protein','بروتين (كمية نسبية)',1),('sugar','سكر (بنفس الوحدة)',1),('sleep_h','ساعات النوم',8),('activity_min','دقائق الحركة',30),('cd8','CD8',1),('cd4','CD4',1),('nk','NK',1),('ref_cd8','CD8 المرجعي',1),('ref_cd4','CD4 المرجعي',1),('ref_nk','NK المرجعي',1),('R1','R1 بعد جولة',200),('gleason','درجة Gleason',7)] %}
+  {% for f, label, value in [('psa_actual','Actual PSA drop (not the PSA value)',0.5),('psa_expected','Expected PSA drop',0.7),('protein','Protein (relative amount)',1),('sugar','Sugar (same unit)',1),('sleep_h','Sleep hours',8),('activity_min','Activity minutes',30),('cd8','CD8',1),('cd4','CD4',1),('nk','NK',1),('ref_cd8','Reference CD8',1),('ref_cd4','Reference CD4',1),('ref_nk','Reference NK',1),('R1','R1 after cycle',200),('gleason','Gleason grade',7)] %}
   <label>{{label}}<input name="{{f}}" type="number" step="any" min="0" value="{{value}}"></label>
   {% endfor %}
-  <p class="tiny-note wide">هذه المشتقات لم يتم التحقق من صحتها طبياً، ولا تُعد بديلاً لتفسير النتائج المخبرية.</p>
+  <p class="tiny-note wide">These derived quantities have not been clinically validated and should not be used as a substitute for laboratory interpretation.</p>
 </div>
 </section>
 </div>
-<aside class="form-aside"><div class="panel sticky"><span class="eyebrow">RESEARCH SCENARIO</span><h3>جاهز لإجراء المحاكاة؟</h3><p>سيتم حل خمس معادلات تفاضلية، ثم تخزين المخرجات وعرض رسوم زمنية.</p><div class="aside-facts"><div><span>عدد الحالات</span><b>5</b></div><div><span>طريقة التكامل</span><b>LSODA</b></div><div><span>صيغة التقرير</span><b>PDF</b></div></div><button id="submitSim" class="button full" type="submit">تشغيل المحاكاة <span>←</span></button><div id="formStatus" role="alert" class="form-status" aria-live="polite"></div><p class="tiny-note">النتائج ليست توقعات طبية؛ راجع فرضيات النموذج قبل تفسيرها.</p></div></aside>
+<aside class="form-aside"><div class="panel sticky"><span class="eyebrow">RESEARCH SCENARIO</span><h3>Ready to run the simulation?</h3><p>Five differential equations will be solved, and the outputs will be stored and plotted over time.</p><div class="aside-facts"><div><span>State count</span><b>5</b></div><div><span>Integration method</span><b>LSODA</b></div><div><span>Report format</span><b>PDF</b></div></div><button id="submitSim" class="button full" type="submit">Run simulation <span>←</span></button><div id="formStatus" role="alert" class="form-status" aria-live="polite"></div><p class="tiny-note">Results are not medical predictions; review the model assumptions before interpreting them.</p></div></aside>
 </form>
 {% endblock %}

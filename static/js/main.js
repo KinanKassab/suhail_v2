@@ -21,32 +21,32 @@
         for (const [key, val] of new FormData(form).entries()) {
           if (['patient_name', 'patient_id', 'notes', 'calibration_mode'].includes(key)) payload[key] = val;
           else if (key === 'dose_days') {
-            if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(val)) throw Error('أيام الجرعات يجب فصلها بفواصل، مثلاً 1, 8, 15');
+            if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(val)) throw Error('Dose days must be comma-separated, e.g. 1, 8, 15');
             payload[key] = val.split(',').map(Number);
           } else {
-            if (!val.trim() || !Number.isFinite(Number(val))) throw Error('تأكد من إدخال قيمة رقمية صحيحة في: ' + key);
+            if (!val.trim() || !Number.isFinite(Number(val))) throw Error('Please enter a valid numeric value for: ' + key);
             payload[key] = Number(val);
           }
         }
-        if (payload.dose_days.some((n) => n > payload.T_days || n < 1)) throw Error('كل يوم جرعة يجب أن يقع ضمن مدة المحاكاة');
+        if (payload.dose_days.some((n) => n > payload.T_days || n < 1)) throw Error('Each dose day must fall within the simulation window');
         button.disabled = true;
-        button.textContent = 'جارٍ حل المعادلات...';
-        status.textContent = 'يجري حساب السيناريو وحفظ النتائج.';
+        button.textContent = 'Solving equations...';
+        status.textContent = 'Calculating the scenario and saving the results.';
         const resp = await fetch('/simulate', {method:'POST', headers: {
           'Content-Type':'application/json', 'X-CSRF-Token': $('meta[name="csrf-token"]').content
         }, body:JSON.stringify(payload)});
         const data = await resp.json();
         if (!resp.ok) {
           const extra = (data.details || []).map(x => `${x.field}: ${x.message}`).join(' | ');
-          throw Error((data.error || 'فشلت المحاكاة') + (extra ? ' — ' + extra : ''));
+          throw Error((data.error || 'Simulation failed') + (extra ? ' — ' + extra : ''));
         }
         status.classList.add('success');
-        status.textContent = 'اكتملت المحاكاة، يجري فتح النتائج...';
+        status.textContent = 'Simulation completed. Opening the results...';
         window.location.assign(data.url);
       } catch (error) {
-        status.textContent = error.message || 'حصل خطأ غير متوقع';
+        status.textContent = error.message || 'An unexpected error occurred';
         button.disabled = false;
-        button.textContent = 'تشغيل المحاكاة ←';
+        button.textContent = 'Run simulation ←';
       }
     });
   }

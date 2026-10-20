@@ -56,11 +56,11 @@ class SuhailModel:
         self.cal = config.calibration
         self.cal.validate()
         if self.c.K_cells <= 0 or self.c.EC50 <= 0 or self.c.I_max <= 0:
-            raise ValueError("ثوابت السعة و EC50 والمناعة يجب أن تكون موجبة")
+            raise ValueError("Capacity, EC50, and immune constants must be positive")
         if self.cfg.T_days < 1 or not self.cfg.dose_days:
-            raise ValueError("مدة المحاكاة وأيام الجرعات غير صحيحة")
+            raise ValueError("Simulation duration and dose days are invalid")
         if any(d < 1 or d > self.cfg.T_days for d in self.cfg.dose_days):
-            raise ValueError("أيام الجرعات خارج فترة المحاكاة")
+            raise ValueError("Dose days fall outside the simulation window")
 
     def _hill(self, x):
         x = max(float(x), 0.0)
@@ -116,7 +116,7 @@ class SuhailModel:
         cfg, c = self.cfg, self.c
         y = np.array([cfg.S0, cfg.R0, cfg.I0, c.f_R0, 0.0], dtype=float)
         if not np.all(np.isfinite(y)):
-            raise ValueError("الحالة الابتدائية غير صالحة")
+            raise ValueError("Initial condition is invalid")
         history = [self._snapshot(0, y)]
         # Solve separately for each day, avoiding LSODA crossing dose discontinuities.
         for day in range(1, cfg.T_days + 1):
@@ -126,10 +126,10 @@ class SuhailModel:
                 rtol=1e-7, atol=1e-9, max_step=0.1,
             )
             if not solution.success:
-                raise RuntimeError(f"فشل التكامل في اليوم {day}: {solution.message}")
+                raise RuntimeError(f"Integration failed on day {day}: {solution.message}")
             y = solution.y[:, -1]
             if not np.all(np.isfinite(y)):
-                raise RuntimeError("نتائج غير منتهية من المحاكي")
+                raise RuntimeError("Non-finite values were produced by the simulator")
             y[:2] = np.maximum(y[:2], 0)
             y[2] = np.clip(y[2], 0, c.I_max)
             y[3] = np.clip(y[3], 0, 1)

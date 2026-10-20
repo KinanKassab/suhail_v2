@@ -59,7 +59,7 @@ def require_auth(route):
     def wrapped(*args, **kwargs):
         if ADMIN_PASSWORD and not session.get("authenticated"):
             if request.path == "/simulate":
-                return jsonify(error="يرجى تسجيل الدخول"), 401
+                return jsonify(error="Please log in"), 401
             return redirect(url_for("login"))
         return route(*args, **kwargs)
     return wrapped
@@ -92,7 +92,7 @@ def login():
             session["authenticated"] = True
             session.permanent = True
             return redirect(url_for("index"))
-        return render_template("login.html", error="كلمة المرور غير صحيحة"), 401
+        return render_template("login.html", error="Incorrect password"), 401
     return render_template("login.html")
 
 
@@ -150,7 +150,7 @@ def export_pdf(sim_id):
         pdf = generate_pdf(rec)
     except Exception:
         app.logger.exception("PDF generation failed")
-        return "تعذّر إنشاء ملف PDF", 500
+        return "PDF file could not be generated", 500
     return send_file(BytesIO(pdf), mimetype="application/pdf", as_attachment=True,
                      download_name=f"suhail-report-{sim_id}.pdf")
 
@@ -192,10 +192,10 @@ def summarize(history, calibration):
                   for key in ("day", "S", "R", "I", "f_R", "C_eff", "E_drug",
                               "total_cells", "resistance_fraction", "TR", "TG")},
         "notices": [
-            "نموذج بحثي رياضي غير مُتحقق منه سريرياً؛ لا يستخدم للتشخيص أو اختيار العلاج.",
-            "قيم الثوابت وعوامل المعايرة افتراضية، وPSA ليس قياساً مباشراً لفعالية الدواء.",
-            "انتقال S إلى R في المعادلات المُرسلة غير محافظ على عدد الخلايا.",
-            "TG هو مؤشر رياضي مشتق من المقاومة، وليس قياساً سريرياً لحجم الورم.",
+            "This is an exploratory mathematical model that has not been clinically validated and should not be used for diagnosis or treatment selection.",
+            "Default calibration constants and factors are assumed; PSA is not a direct measure of drug efficacy.",
+            "The S-to-R transition in the supplied equations does not conserve total cell count.",
+            "TG is a mathematical resistance-derived index, not a clinical measure of tumor size.",
         ],
     }
 
@@ -204,10 +204,10 @@ def summarize(history, calibration):
 @require_auth
 def simulate():
     if not csrf_ok():
-        return jsonify(error="فشل التحقق من طلب الحماية، أعد تحديث الصفحة"), 403
+        return jsonify(error="CSRF validation failed. Please refresh the page."), 403
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
-        return jsonify(error="أرسل بيانات JSON صحيحة"), 400
+        return jsonify(error="Please send valid JSON data"), 400
     try:
         req = SimulationRequest.model_validate(payload)
         cal = make_calibration(req)
@@ -221,25 +221,25 @@ def simulate():
         history = SuhailModel(config).run()["history"]
         results = summarize(history, cal)
     except ValidationError as exc:
-        return jsonify(error="المدخلات غير صحيحة", details=[{"field": ".".join(map(str, e["loc"])),
+        return jsonify(error="Input is invalid", details=[{"field": ".".join(map(str, e["loc"])),
                         "message": e["msg"]} for e in exc.errors()]), 400
     except (ValueError, OverflowError) as exc:
         return jsonify(error=str(exc)), 400
     except Exception:
         app.logger.exception("Simulation computation error")
-        return jsonify(error="حدث خطأ أثناء المحاكاة"), 500
+        return jsonify(error="An error occurred during the simulation"), 500
     try:
         sim_id = db.save_simulation(req, results)
     except Exception:
         app.logger.exception("Database insertion failed")
-        return jsonify(error="المحاكاة انتهت لكن حفظ البيانات فشل"), 500
+        return jsonify(error="The simulation completed, but saving the data failed"), 500
     return jsonify(id=sim_id, url=url_for("view_simulation", sim_id=sim_id),
                    pdf_url=url_for("export_pdf", sim_id=sim_id), results=results)
 
 
 @app.errorhandler(413)
 def too_large(err):
-    return jsonify(error="حجم البيانات كبير جداً"), 413
+    return jsonify(error="Request payload is too large"), 413
 
 
 if __name__ == "__main__":

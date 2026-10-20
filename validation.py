@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator, model_valida
 
 class SimulationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
-    patient_name: str = Field(default="حالة بحثية", min_length=1, max_length=100)
+    patient_name: str = Field(default="Research case", min_length=1, max_length=100)
     patient_id: str = Field(default="-", max_length=50)
     notes: str = Field(default="", max_length=2000)
     S0: float = Field(default=5000, ge=0, le=1e12)
@@ -47,19 +47,19 @@ class SimulationRequest(BaseModel):
     @classmethod
     def normalize_doses(cls, value):
         if any(isinstance(d, bool) or not isinstance(d, int) for d in value):
-            raise ValueError("أيام الجرعات يجب أن تكون أعداداً صحيحة")
+            raise ValueError("Dose days must be integers")
         return sorted(set(value))
 
     @model_validator(mode="after")
     def check_combined(self):
         if any(d < 1 or d > self.T_days for d in self.dose_days):
-            raise ValueError("كل يوم جرعة يجب أن يكون بين 1 ومدة المحاكاة")
+            raise ValueError("Each dose day must fall within the simulation window")
         if self.S0 + self.R0 <= 0:
-            raise ValueError("يلزم عدد أولي موجب من الخلايا")
+            raise ValueError("A positive initial cell count is required")
         if self.calibration_mode == "derived" and self.psa_expected <= 0:
-            raise ValueError("PSA المتوقع يجب أن يكون أكبر من الصفر")
+            raise ValueError("Expected PSA reduction must be greater than zero")
         if self.calibration_mode == "derived" and self.R0 <= 0:
-            raise ValueError("لا يمكن اشتقاق عامل المقاومة عند R0 = 0")
+            raise ValueError("Resistance factor cannot be derived when R0 = 0")
         if self.calibration_mode == "derived" and self.protein + self.sugar <= 0:
-            raise ValueError("القيم الغذائية اللازمة للاشتقاق غير متوفرة")
+            raise ValueError("Nutritional inputs needed for derivation are unavailable")
         return self

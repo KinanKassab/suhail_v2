@@ -1,23 +1,23 @@
-# سُهيل v2 — Suhail Research Simulator
+# Suhail v2 — Suhail Research Simulator
 
-مشروع Flask عربي متجاوب لمحاكاة نظام معادلات تفاضلية افتراضي من 5 متغيرات باستخدام SciPy LSODA، مع عرض رسوم بيانية وحفظ تجارب وتقارير PDF عربية.
+A responsive Flask project for simulating a 5-variable differential-equation system using SciPy LSODA, with chart rendering and saved experiments plus PDF reports.
 
-> **تنبيه بالغ الأهمية:** هذا **نموذج رياضي استكشافي غير مُتحقق منه سريرياً**. لا يصلح للتشخيص أو توقع مآل ورم حقيقي أو تغيير علاج أو معايرة جرعات. المعاملات افتراضية. لا تستعمل بيانات مرضى حقيقية على الخدمة التجريبية أو قواعد البيانات المجانية. لا يوجد في المشروع تحقق مستقل من إسناد المعادلات إلى أشخاص أو مؤسسات.
+> **Critical warning:** this is an **exploratory mathematical model that has not been clinically validated**. It is not suitable for diagnosis, forecasting a real tumor outcome, adjusting treatment, or calibrating drug doses. The coefficients are hypothetical. Do not use real patient data on the demo service or free database tiers. No independent validation of the equations or their assignment to individuals or institutions is included in this project.
 
-## الملفات
+## Files
 
 ```text
 suhail_v2/
-├── app.py                 # صفحات Flask و API والمصادقة
-├── model.py               # نظام ODE المكوّن من 5 حالات
-├── calibration.py         # 5 معاملات معايرة بحثية
+├── app.py                 # Flask pages, API, and auth
+├── model.py               # 5-state ODE system
+├── calibration.py         # 5 research calibration coefficients
 ├── validation.py          # Pydantic input validation
-├── database.py            # PostgreSQL أو SQLite
+├── database.py            # PostgreSQL or SQLite
 ├── pdf_export.py          # WeasyPrint PDF
 ├── requirements.txt
 ├── Dockerfile
-├── render.yaml            # عرض تجريبي Render مجاني 30 يوماً فقط لقاعدة البيانات
-├── render-production.yaml # مثال إعداد مدفوع بقاعدة بيانات دائمة
+├── render.yaml            # Free Render trial only for demo database usage
+├── render-production.yaml # Example production setup with persistent database
 ├── .env.example
 ├── .gitignore
 ├── templates/
@@ -35,28 +35,28 @@ suhail_v2/
     └── test_web.py
 ```
 
-## نشر Render من GitHub (الطريقة الموصى بها)
+## Deploying on Render from GitHub (recommended)
 
-1. فك ضغط المشروع وارفع **محتويات** مجلد `suhail_v2` إلى مستودع GitHub خاص (Private). لا ترفع ملفات `.env` أو `instance/`.
-2. في https://dashboard.render.com/ اختر **New → Blueprint** واربط المستودع الذي يحتوي على `render.yaml`.
-3. سيظهر تطبيق `suhail-v2` وقاعدة `suhail-db`؛ `render.yaml` يستخدم Web Service مجاني وPostgres مجاني **للتجارب المؤقتة فقط**.
-4. عند طلب متغير `ADMIN_PASSWORD` أدخل كلمة مرور مسؤول قوية وفريدة؛ `SECRET_KEY` يُنشأ تلقائياً. لا تكتبها داخل ملفات GitHub.
-5. ابدأ تطبيق Blueprint، ثم افتح رابط `https://<your-service>.onrender.com` وسجّل الدخول.
-6. اختبر صفحة `/healthz`، أنشئ محاكاة، ثم افتح السجل وجرّب تنزيل PDF.
+1. Unzip the project and upload the **contents** of the `suhail_v2` folder to a private GitHub repository. Do not upload `.env` or `instance/` files.
+2. In https://dashboard.render.com/ choose **New → Blueprint** and connect the repo containing `render.yaml`.
+3. The app `suhail-v2` and database `suhail-db` will appear; `render.yaml` uses a free Web Service and free Postgres **for temporary experiments only**.
+4. When prompted for `ADMIN_PASSWORD`, enter a strong unique admin password; `SECRET_KEY` is generated automatically. Do not save it in GitHub files.
+5. Start the Blueprint app, then open the link `https://<your-service>.onrender.com` and log in.
+6. Test the `/healthz` route, create a simulation, then open the history view and try downloading a PDF.
 
-**مهم:** قاعدة Render Postgres المجانية تنتهي صلاحيتها بعد 30 يوماً مع مهلة ترقية 14 يوماً، ولا تتضمن نسخاً احتياطية. لذا `render.yaml` لا يصلح لحفظ سجل طويل الأمد. للبيانات المستمرة استخدم قاعدة مدفوعة أو PostgreSQL خارجياً. يتضمن المشروع نموذجاً مدفوعاً باسم `render-production.yaml`؛ غيّر اسمه إلى `render.yaml` قبل الربط إذا أردت هذه الخطة. راجع تكاليف Render قبل تشغيل خطة مدفوعة. مواصفات الخطط قد تتغير.
+**Important:** the free Render Postgres database expires after 30 days with a 14-day upgrade window and has no backups. Therefore `render.yaml` is not suitable for long-term history retention. For persistent data, use a paid database or external PostgreSQL. The project includes a paid template named `render-production.yaml`; rename it to `render.yaml` before linking if you want this plan. Check Render pricing before starting a paid plan. Plan details may change.
 
-### بديل: New Web Service (بدون Blueprint)
+### Alternative: New Web Service (without Blueprint)
 
-- اختر `Docker` كمحرّك، والمستودع الذي يحتوي على Dockerfile.
-- عيّن `SECRET_KEY` و`ADMIN_PASSWORD` و`PRODUCTION=1`.
-- عيّن `DATABASE_URL` إلى اتصال PostgreSQL إذا أردت بقاء السجل.
-- إذا لم توفّر `DATABASE_URL` فسيستخدم SQLite محلياً داخل الحاوية **وستُفقد البيانات مع إعادة النشر أو إعادة تشغيل المثيل** بسبب التخزين المؤقت على Render. هذا الوضع ملائم فقط لتجربة الواجهة بحالات اصطناعية.
-- Dockerfile يشغل Gunicorn تلقائياً ويستمع على `0.0.0.0:$PORT`، ولا يحتاج Start Command إضافياً.
+- Choose `Docker` as the runtime and the repo containing the Dockerfile.
+- Set `SECRET_KEY`, `ADMIN_PASSWORD`, and `PRODUCTION=1`.
+- Set `DATABASE_URL` to a PostgreSQL connection if you want the simulation history to persist.
+- If `DATABASE_URL` is not supplied, SQLite will be used inside the container **and data will be lost after redeploying or restarting the instance** because of ephemeral storage on Render. This mode is only suitable for testing the interface with synthetic cases.
+- The Dockerfile runs Gunicorn automatically and listens on `0.0.0.0:$PORT`, so no extra Start Command is needed.
 
-## التشغيل المحلي
+## Local run
 
-يشغّل Docker المتطلبات النظامية لـ WeasyPrint وخطوط العربية تلقائياً:
+Docker installs the system requirements for WeasyPrint and Arabic fonts automatically:
 
 ```bash
 docker build -t suhail-v2 .
@@ -68,39 +68,39 @@ docker run --rm -p 5000:10000 \
   suhail-v2
 ```
 
-افتح http://localhost:5000 ثم أدخل كلمة المرور.
+Open http://localhost:5000 and enter the password.
 
-لتشغيل Python محلياً خارج Docker (يفضّل Python 3.11):
+To run Python locally outside Docker (Python 3.11 preferred):
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env         # Windows: copy .env.example .env
-# عدل القيم الموجودة في .env
+# edit the values in .env
 python app.py
 ```
 
-تنبيه: نظام التشغيل يحتاج مكتبات Pango وFontconfig وخطوط عربية لتصدير PDF. لذلك Docker أسهل وأكثر اتساقاً.
+Warning: the operating system requires the Pango, Fontconfig, and Arabic font libraries to export PDFs. Docker is therefore easier and more consistent.
 
-## التحقق الآلي
+## Automated verification
 
 ```bash
 pip install pytest
 pytest -q
 ```
 
-اختبارات `test_web.py` تشمل التحقق من المصادقة، CSRF، استدعاء `/simulate`، قراءة النتائج، PDF، والتعامل مع خطأ في الإدخالات. وتُختبر خصائص الحل العددي في `test_model.py`.
+The `test_web.py` checks cover authentication, CSRF, `/simulate` calls, reading results, PDF export, and handling invalid input errors. The numerical solution properties are tested in `test_model.py`.
 
 ## API
 
-`POST /simulate` يحتاج جلسة دخول، ورمز CSRF من الوسم `meta[name="csrf-token"]` في ترويسة `X-CSRF-Token`، وبيانات JSON.
+`POST /simulate` requires a logged-in session, a CSRF token from the `meta[name="csrf-token"]` tag sent in the `X-CSRF-Token` header, and JSON data.
 
-مثال:
+Example:
 
 ```json
 {
-  "patient_name": "حالة تجريبية 01",
+  "patient_name": "Demo case 01",
   "patient_id": "DEMO-001",
   "S0": 5000,
   "R0": 100,
@@ -117,29 +117,29 @@ pytest -q
 }
 ```
 
-تعود الاستجابة برقم المحاكاة `id` ورابط عرض `url` ورابط PDF `pdf_url` ومصفوفات زمنية للرسوم.
+The response returns the simulation ID `id`, the result page URL `url`, the PDF URL `pdf_url`, and time-series arrays for plotting.
 
-## التغييرات عن الملفات المرسلة
+## Changes from the submitted files
 
-- إكمال `app.py` المقطوع عند `results["recommendations"] = _gen`؛ واستبدال التوصيات الطبية بحدود منهجية موثقة.
-- تصحيح إدخال معامل `σ_A` داخل حدّ السعة اللوجستي.
-- تطبيق `T_eff = T × SRF` كما ورد في المعادلة بدلاً من `T × (0.5 + SRF)` في النص البرمجي القديم.
-- فصل حل المعادلات على مستوى كل يوم لتقليل خطأ التكامل عبر حدود الجرعات غير المستمرة.
-- إضافة اختيار معايرة يدوية **تُحترم قيمها فعلياً** أو اشتقاق تجريبي تحذيري.
-- فحص أيام الجرعات بعد `T_days` في Pydantic بدلاً من الاعتماد على ترتيب الحقول.
-- استخدام SQLite محلياً وPostgreSQL تلقائياً مع `DATABASE_URL`.
-- حذف الأسرار الافتراضية في الإنتاج، وإضافة تسجيل الدخول وCSRF وحماية السجل وPDF.
-- إرسال PDF مباشرة دون إنشاء ملفات تقارير يمكن الوصول إليها من المجلد العام.
+- Completed `app.py` after the truncated section at `results["recommendations"] = _gen`; replaced medical recommendations with documented methodological limits.
+- Corrected the `σ_A` input inside the logistic capacity bound.
+- Applied `T_eff = T × SRF` as specified by the equation instead of `T × (0.5 + SRF)` from the old script.
+- Solved the equations separately for each day to reduce integration error across discontinuous dosing boundaries.
+- Added manual calibration selection that **respects entered values** or a warning-only derived calibration.
+- Validated dose days after `T_days` in Pydantic instead of relying on field order.
+- Added local SQLite and automatic PostgreSQL handling via `DATABASE_URL`.
+- Removed default secrets in production and added login, CSRF, history, and PDF protection.
+- Sent PDFs directly without creating report files in the shared folder.
 
-## محاذير علمية مهمة
+## Important scientific cautions
 
-1. معادلة S المرسلة تطرح انتقالاً متناسباً مع `T_eff * S * S/(S+R)`، بينما معادلة R تضيف `T_eff * S`، لذا الانتقال **لا يحفظ مجموع الخلايا**. أبقينا الصيغ الأصلية للحفاظ على التطابق مع طلب الباحث، لكن ينبغي تدقيقها قبل أي تطبيق علمي.
-2. المعادلة تصف فعالية `σ_C` داخل تركيز الدواء وبعد حساب `E_drug` أيضاً، ما يكرر تأثير المعايرة؛ التصميم بحاجة إلى مراجعة علمية.
-3. اشتقاق `σ_C` من انخفاض PSA واستخدام Gleason وقياسات CD8/CD4/NK والأكل/النوم/النشاط معادلات افتراضية **غير مثبتة التوافق مع فعالية العلاج**.
-4. `TR` هو مؤشر مقاومة معدل وليس النسبة المرصودة للخلايا المقاومة. لذلك أضيف `resistance_fraction=R/(S+R)` كمخرج منفصل، و`TG` مؤشر لا قياس حقيقي لحجم الورم.
-5. المصدر البرمجي الأصلي يسمّي الثوابت `day⁻¹` أو عديمة الوحدات مع أن عدة معاملات تتطلب وحدات أخرى لتحقيق الاتساق؛ يجب توحيد المقاييس والتحقق من قيمها ومقارنتها ببيانات مناسبة.
-6. نظام الخمس حالات يختزل توزيع الدواء وامتصاصه. تم الحفاظ على مدخل الدواء ذي الامتصاص الأسي خلال يوم الجرعة، ولا يمثل حركية دوائية مؤكدة.
+1. The supplied S equation includes a transition proportional to `T_eff * S * S/(S+R)`, while the R equation adds `T_eff * S`, so the transition does **not conserve total cell count**. The original formulas were kept to align with the research ask, but they should be audited before any scientific use.
+2. The equation describes the effect of `σ_C` both inside the drug concentration and again after calculating `E_drug`, which duplicates the calibration effect; this design requires scientific review.
+3. Deriving `σ_C` from PSA drop and using Gleason plus CD8/CD4/NK and diet/sleep/activity values creates hypothetical equations that are **not validated for treatment efficacy**.
+4. `TR` is a scaled resistance index, not the observed fraction of resistant cells. That is why `resistance_fraction=R/(S+R)` was added as a separate output, and `TG` is an index rather than a true tumor-volume measurement.
+5. The original code names coefficients as `day⁻¹` or dimensionless, even though several parameters require other units for consistency; the measurements need to be standardized and compared against appropriate data.
+6. The five-state system collapses drug distribution and absorption. The exponential drug absorption input per dosing day was retained, but it does not represent validated pharmacokinetics.
 
-## الخصوصية والإنتاج
+## Privacy and production
 
-نسخة المسؤول الواحد بكلمة مرور مشتركة مناسبة لعرض تجريبي محمي فقط، **وليست منصة ملفات مرضى جاهزة للإنتاج**. إذا ستُستخدم بيانات طبية حقيقية فستحتاج تقييم أمن وخصوصية متخصصاً، حسابات فردية مع صلاحيات، تدقيق عمليات، إدارة مفاتيح، سياسة احتفاظ وحذف، تشفير ونسخ احتياطي، وامتثالاً قانونياً ملائماً. يوصى باستخدام بيانات اصطناعية هنا.
+The single-admin version with a shared password is suitable only for a protected demo environment, **not a production-ready patient-file platform**. If real medical data will be used, you need a specialized security and privacy review, per-user access controls, audit logs, key management, retention and deletion policy, encryption and backups, and appropriate legal compliance. Synthetic data is recommended here.
